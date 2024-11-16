@@ -1,0 +1,124 @@
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='images/images.jpg') }}" alt="Logo Tỉnh Đoàn" class="logo">
+        </div>
+        <h3>{{ user.full_name }}</h3>
+        <p>{{ user.role.position if user.role else 'Người dùng mới' }}</p>
+    </div>
+    
+    <div class="sidebar-menu">
+        {% if not user.role or user.role.level == 5 %}
+            <a href="{{ url_for('request_role') }}" class="menu-item request-role">
+                <i class="fas fa-user-shield"></i>
+                <span>Yêu cầu cấp quyền</span>
+            </a>
+        {% else %}
+            <a href="{{ url_for('dashboard') }}" class="menu-item home">
+                <i class="fas fa-home"></i>
+                <span>Trang chủ</span>
+            </a>
+
+            <!-- Menu cho admin (level 1) -->
+            {% if user.role.level == 1 %}
+            <div class="menu-group">
+                <div class="menu-header">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Quản lý hệ thống</span>
+                </div>
+                <div class="menu-items">
+                    <a href="{{ url_for('list_members') }}" class="menu-item">
+                        <span>Danh sách thành viên</span>
+                    </a>
+                    <a href="{{ url_for('create_user') }}" class="menu-item">
+                        <span>Tạo tài khoản quản trị</span>
+                    </a>
+                    <a href="{{ url_for('list_role_requests') }}" class="menu-item">
+                        <span>Duyệt yêu cầu quyền</span>
+                    </a>
+                </div>
+            </div>
+            {% else %}
+                <!-- Menu duyệt quyền cho cấp tỉnh (level 2) -->
+                {% if user.role.level == 2 %}
+                    <div class="menu-group">
+                        <div class="menu-header">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Quản lý quyền</span>
+                        </div>
+                        <div class="menu-items">
+                            <a href="{{ url_for('list_role_requests') }}" class="menu-item">
+                                <span>Duyệt yêu cầu quyền</span>
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Menu duyệt quyền cho cấp huyện (level 3) -->
+                {% if user.role.level == 3 %}
+                    <div class="menu-group">
+                        <div class="menu-header">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Quản lý quyền</span>
+                        </div>
+                        <div class="menu-items">
+                            <a href="{{ url_for('list_role_requests') }}" class="menu-item">
+                                <span>Duyệt yêu cầu quyền</span>
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Menu duyệt quyền cho cấp xã (level 4) -->
+                {% if user.role.level == 4 %}
+                    <div class="menu-group">
+                        <div class="menu-header">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Quản lý quyền</span>
+                        </div>
+                        <div class="menu-items">
+                            <a href="{{ url_for('list_role_requests') }}" class="menu-item">
+                                <span>Duyệt yêu cầu quyền</span>
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Menu quản lý công việc cho các role không phải admin -->
+                <div class="menu-group">
+                    <div class="menu-header">
+                        <i class="fas fa-tasks"></i>
+                        <span>Quản lý công việc</span>
+                    </div>
+                    <div class="menu-items">
+                        {% if user.role.level in [2, 3, 4] %}
+                        <a href="{{ url_for('create_task') }}" class="menu-item">
+                            <span>Tạo công việc</span>
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('list_tasks') }}" class="menu-item">
+                            <span>Danh sách công việc</span>
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="menu-group">
+                <div class="menu-header">
+                    <i class="fas fa-users"></i>
+                    <span>Quản lý thành viên</span>
+                </div>
+                <div class="menu-items">
+                    <a href="{{ url_for('list_members') }}" class="menu-item">
+                        <span>Danh sách thành viên</span>
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+
+        <a href="{{ url_for('logout') }}" class="menu-item logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Đăng xuất</span>
+        </a>
+    </div>
+</div>                      

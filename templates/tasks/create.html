@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Tạo công việc mới{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'sidebar.html' %}
+    
+    <div class="main-content">
+        <div class="content-header">
+            <h2>Tạo công việc mới</h2>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="form">
+            <div class="form-group">
+                <label>Tiêu đề</label>
+                <input type="text" name="title" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Mô tả</label>
+                <textarea name="description" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Nơi xử lý</label>
+                <select name="organization_level" class="form-control" id="organization_level" onchange="loadOrganizations()">
+                    <option value="">Chọn nơi xử lý</option>
+                    {% if user and user.get('role', {}).get('name') == 'quan_tri_tinh' %}
+                        <option value="tinh">Cấp tỉnh</option>
+                        <option value="huyen">Cấp huyện</option>
+                        <option value="xa">Cấp xã</option>
+                    {% elif user and user.get('role', {}).get('name') == 'quan_tri_huyen' %}
+                        <option value="huyen">Cấp huyện</option>
+                        <option value="xa">Cấp xã</option>
+                    {% elif user and user.get('role', {}).get('name') == 'quan_tri_xa' %}
+                        <option value="xa">Cấp xã</option>
+                    {% endif %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Người/đơn vị xử lý</label>
+                <select name="assigned_to" class="form-control" id="assigned_to" required>
+                    <option value="">Chọn người/đơn vị xử lý</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Độ ưu tiên</label>
+                <select name="priority" class="form-control">
+                    <option value="low">Thấp</option>
+                    <option value="medium">Trung bình</option>
+                    <option value="high">Cao</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Hạn</label>
+                <input type="date" name="deadline" class="form-control">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Tạo công việc</button>
+            <a href="{{ url_for('list_tasks') }}" class="btn btn-secondary">Hủy</a>
+        </form>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+function loadOrganizations() {
+    const level = document.getElementById('organization_level').value;
+    if (!level) {
+        const select = document.getElementById('assigned_to');
+        select.innerHTML = '<option value="">Chọn người/đơn vị xử lý</option>';
+        return;
+    }
+    
+    fetch(`/get-organizations/${level}`)
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById('assigned_to');
+            select.innerHTML = '<option value="">Chọn người/đơn vị xử lý</option>';
+            
+            if (data.length === 0) {
+                select.innerHTML = '<option value="">Không có người dùng phù hợp</option>';
+                return;
+            }
+            
+            data.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user._id;
+                option.textContent = `${user.full_name} (${user.role})`;
+                select.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const select = document.getElementById('assigned_to');
+            select.innerHTML = '<option value="">Lỗi khi tải dữ liệu</option>';
+        });
+}
+</script>
+{% endblock %}
+
+{% endblock %} 

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Thêm người dùng{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'sidebar.html' %}
+    
+    <div class="main-content">
+        <div class="content-header">
+            <h2>Thêm người dùng mới</h2>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="form-container">
+            <form method="POST" action="{{ url_for('create_user') }}">
+                <div class="form-group">
+                    <label for="username">Tên đăng nhập</label>
+                    <input type="text" id="username" name="username" required class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mật khẩu</label>
+                    <input type="password" id="password" name="password" required class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="full_name">Họ tên</label>
+                    <input type="text" id="full_name" name="full_name" required class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="role_name">Vai trò</label>
+                    <select id="role_name" name="role_name" required class="form-control">
+                        {% if user.role.level == 1 %}
+                            <option value="quan_tri_tinh">Quản trị tỉnh</option>
+                            <option value="quan_tri_huyen">Quản trị huyện</option>
+                            <option value="quan_tri_xa">Quản trị xã</option>
+                        {% endif %}
+                        
+                        {% if user.role.level == 2 and user.role.position == 'Quản trị tỉnh' %}
+                            <option value="ban_thuong_truc">Ban thường trực</option>
+                            <option value="quan_tri_huyen">Quản trị huyện</option>
+                            <option value="nhan_vien_huyen">Nhân viên huyện</option>
+                        {% endif %}
+                        
+                        {% if user.role.level == 2 and user.role.position == 'Ban thường trực' %}
+                            <option value="ban_khac">Ban khác</option>
+                            <option value="chuyen_vien_btv">Chuyên viên ban thường trực</option>
+                        {% endif %}
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Tạo người dùng</button>
+                    <a href="{{ url_for('list_users') }}" class="btn btn-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

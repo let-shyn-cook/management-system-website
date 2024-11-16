@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Danh sách thành viên{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'sidebar.html' %}
+    
+    <div class="main-content">
+        <div class="content-header">
+            <h2>Danh sách thành viên</h2>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Chức vụ</th>
+                        <th>Đơn vị</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in members %}
+                    <tr>
+                        <td>{{ member.full_name }}</td>
+                        <td>{{ member.email }}</td>
+                        <td>{{ member.role.position if member.role else 'Chưa có' }}</td>
+                        <td>{{ member.organization.name if member.organization else 'Chưa có' }}</td>
+                        <td>{{ member.status }}</td>
+                        <td class="action-buttons">
+                            <a href="{{ url_for('member_detail', member_id=member._id) }}" 
+                               class="btn btn-info btn-sm">
+                                <i class="fas fa-info-circle"></i> Chi tiết
+                            </a>
+                            <a href="{{ url_for('edit_user', user_id=member._id) }}" 
+                               class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit"></i> Sửa
+                            </a>
+                            {% if current_user.role.level == 1 and member.username != 'admin' %}
+                            <button onclick="confirmDelete('{{ member._id }}')" 
+                                    class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i> Xóa
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận xóa -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <h5>Xác nhận xóa</h5>
+        <p>Bạn có chắc chắn muốn xóa thành viên này?</p>
+        <div class="modal-footer">
+            <button onclick="closeModal()" class="btn btn-secondary">Hủy</button>
+            <form id="deleteForm" method="POST">
+                <button type="submit" class="btn btn-danger">Xóa</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(memberId) {
+    const modal = document.getElementById('confirmModal');
+    const deleteForm = document.getElementById('deleteForm');
+    deleteForm.action = `/members/delete/${memberId}`;
+    modal.style.display = 'block';
+}
+
+function closeModal() {
+    const modal = document.getElementById('confirmModal');
+    modal.style.display = 'none';
+}
+</script>
+{% endblock %} 

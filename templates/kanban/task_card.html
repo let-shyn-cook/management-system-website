@@ -1,0 +1,14 @@
+<div class="task-card" data-task-id="{{ task._id }}" draggable="true">
+    <div class="task-priority priority-{{ task.priority }}">
+        {{ task.priority|title }}
+    </div>
+    <h4>{{ task.title }}</h4>
+    <p>{{ task.description|truncate(50) }}</p>
+    <div class="task-meta">
+        <small>Người thực hiện: {{ task.assigned_to }}</small>
+        {% if task.deadline %}
+        <br>
+        <small>Hạn: {{ task.deadline.strftime('%d/%m/%Y') }}</small>
+        {% endif %}
+    </div>
+</div> 

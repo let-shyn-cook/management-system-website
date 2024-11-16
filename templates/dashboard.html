@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'sidebar.html' %}
+
+    <div class="main-content">
+        <header class="dashboard-header">
+            <h2>Bảng điều khiển</h2>
+            <div class="header-actions">
+                <span>Xin chào, {{ user.full_name }}</span>
+            </div>
+        </header>
+
+        <div class="dashboard-stats">
+            {% if user.role and user.role.level != 5 %}
+            <div class="stat-card">
+                <h3>Công việc của bạn</h3>
+                <div class="task-stats">
+                    <div class="task-stat">
+                        <i class="fas fa-clock"></i>
+                        <div class="stat-details">
+                            <span class="stat-label">Đang chờ</span>
+                            <span class="stat-value">{{ waiting_count }}</span>
+                        </div>
+                    </div>
+                    <div class="task-stat">
+                        <i class="fas fa-spinner"></i>
+                        <div class="stat-details">
+                            <span class="stat-label">Đang thực hiện</span>
+                            <span class="stat-value">{{ in_progress_count }}</span>
+                        </div>
+                    </div>
+                    <div class="task-stat">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="stat-details">
+                            <span class="stat-label">Hoàn thành</span>
+                            <span class="stat-value">{{ completed_count }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if user.role.level == 1 %}
+            <div class="stat-card">
+                <h3>Thống kê người dùng</h3>
+                <div class="user-stats">
+                    <div class="user-stat">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-details">
+                            <span class="stat-label">Tổng số</span>
+                            <span class="stat-value">{{ total_users }}</span>
+                        </div>
+                    </div>
+                    <div class="user-stat">
+                        <i class="fas fa-user-check"></i>
+                        <div class="stat-details">
+                            <span class="stat-label">Đang hoạt động</span>
+                            <span class="stat-value">{{ active_users }}</span>
+                        </div>
+                    </div>
+                    <div class="user-stat">
+                        <i class="fas fa-user-clock"></i>
+                        <div class="stat-details">
+                            <span class="stat-label">Chờ duyệt</span>
+                            <span class="stat-value">{{ pending_users }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="news-section">
+            <div class="news-button-container">
+                <a href="http://doantncshcm.dongnai.gov.vn/Pages/home.aspx" 
+                   target="_blank" 
+                   class="news-button">
+                    <i class="fas fa-newspaper"></i>
+                    <span>Xem tin tức Tỉnh Đoàn</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="charts-section">
+            <div class="chart-container full-width">
+                <h3 class="chart-title">Thống kê công việc theo tháng</h3>
+                <canvas id="taskChart"></canvas>
+            </div>
+            
+            <div class="chart-container full-width">
+                <h3 class="chart-title">Hoạt động 7 ngày qua</h3>
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Biểu đồ công việc theo tháng
+const taskCtx = document.getElementById('taskChart').getContext('2d');
+new Chart(taskCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ monthly_stats|map(attribute='_id')|list|tojson }},
+        datasets: [{
+            label: 'Tổng số công việc',
+            data: {{ monthly_stats|map(attribute='total')|list|tojson }},
+            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+            borderColor: 'rgb(54, 162, 235)',
+            borderWidth: 1
+        }, {
+            label: 'Đã hoàn thành',
+            data: {{ monthly_stats|map(attribute='completed')|list|tojson }},
+            backgroundColor: 'rgba(75, 192, 192, 0.7)',
+            borderColor: 'rgb(75, 192, 192)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    padding: 20,
+                    font: { size: 14 }
+                }
+            },
+            title: {
+                display: true,
+                text: 'Thống kê công việc theo tháng',
+                font: { size: 16 }
+            }
+        },
+        scales: {
+            x: {
+                grid: { display: false },
+                ticks: {
+                    font: { size: 12 }
+                }
+            },
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0,0,0,0.1)'
+                },
+                ticks: {
+                    font: { size: 12 },
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+
+// Biểu đồ hoạt động 7 ngày
+const activityCtx = document.getElementById('activityChart').getContext('2d');
+new Chart(activityCtx, {
+    type: 'line',
+    data: {
+        labels: {{ activity_stats|map(attribute='_id')|list|tojson }},
+        datasets: [{
+            label: 'Số hoạt động',
+            data: {{ activity_stats|map(attribute='count')|list|tojson }},
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+            fill: true,
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    padding: 20,
+                    font: { size: 14 }
+                }
+            },
+            title: {
+                display: true,
+                text: 'Hoạt động 7 ngày qua',
+                font: { size: 16 }
+            }
+        },
+        scales: {
+            x: {
+                grid: { display: false },
+                ticks: {
+                    font: { size: 12 }
+                }
+            },
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0,0,0,0.1)'
+                },
+                ticks: {
+                    font: { size: 12 },
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %} 

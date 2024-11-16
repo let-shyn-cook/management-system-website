@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'sidebar.html' %}
+    
+    <div class="main-content">
+        <div class="content-header">
+            <h2>Danh sách công việc</h2>
+            <a href="{{ url_for('create_task') }}" class="btn btn-primary">Tạo công việc mới</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Tiêu đề</th>
+                        <th>Mô tả</th>
+                        <th>Trạng thái</th>
+                        <th>Độ ưu tiên</th>
+                        <th>Người thực hiện</th>
+                        <th>Người giao</th>
+                        <th>Hạn</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.description }}</td>
+                        <td>
+                            <span class="status-badge status-{{ task.status }}">
+                                {{ task.status }}
+                            </span>
+                        </td>
+                        <td>{{ task.priority }}</td>
+                        <td>{{ task.assignee_name }}</td>
+                        <td>{{ task.creator_name }}</td>
+                        <td>{{ task.deadline.strftime('%d/%m/%Y') if task.deadline else 'Không có hạn' }}</td>
+                        <td>
+                            <a href="{{ url_for('edit_task', task_id=task['_id']) }}" class="btn btn-sm btn-primary">Sửa</a>
+                            {% if task.created_by == current_user_id %}
+                                <button onclick="confirmDelete('{{ task['_id'] }}')" class="btn btn-sm btn-danger">Xóa</button>
+                            {% endif %}
+                            {% if task.assignee == current_user._id and task.status == 'in_progress' %}
+                                <form method="POST" action="{{ url_for('complete_task', task_id=task._id) }}" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label>Minh chứng</label>
+                                        <input type="file" name="evidence" required class="form-control">
+                                    </div>
+                                    <button type="submit" class="btn btn-success btn-sm">Hoàn thành</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận xóa -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <h5>Xác nhận xóa</h5>
+        <p>Bạn có chắc chắn muốn xóa công việc này?</p>
+        <div class="modal-footer">
+            <button onclick="closeModal()" class="btn btn-secondary">Hủy</button>
+            <button onclick="deleteTask()" class="btn btn-danger">Xóa</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let taskIdToDelete = null;
+
+function confirmDelete(taskId) {
+    taskIdToDelete = taskId;
+    document.getElementById('confirmModal').classList.add('show');
+}
+
+function closeModal() {
+    document.getElementById('confirmModal').classList.remove('show');
+    taskIdToDelete = null;
+}
+
+function deleteTask() {
+    if (taskIdToDelete) {
+        window.location.href = `/tasks/delete/${taskIdToDelete}`;
+    }
+}
+
+// Đóng modal khi click ra ngoài
+window.onclick = function(event) {
+    const modal = document.getElementById('confirmModal');
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+</script>
+{% endblock %} 

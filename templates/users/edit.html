@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Sửa người dùng{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'sidebar.html' %}
+    
+    <div class="main-content">
+        <div class="content-header">
+            <h2>Sửa thông tin người dùng</h2>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="form-container">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="username">Tên đăng nhập</label>
+                    <input type="text" id="username" value="{{ edit_user.username }}" class="form-control" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mật khẩu mới (để trống nếu không đổi)</label>
+                    <input type="password" id="password" name="password" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="{{ edit_user.email }}" required class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="full_name">Họ tên</label>
+                    <input type="text" id="full_name" name="full_name" value="{{ edit_user.full_name }}" required class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="role_name">Vai trò</label>
+                    <select id="role_name" name="role_name" required class="form-control">
+                        {% for role in available_roles %}
+                            <option value="{{ role.name }}" {% if edit_user.role.name == role.name %}selected{% endif %}>
+                                {{ role.position }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Trạng thái</label>
+                    <select id="status" name="status" required class="form-control">
+                        <option value="active" {% if edit_user.status == 'active' %}selected{% endif %}>Hoạt động</option>
+                        <option value="inactive" {% if edit_user.status == 'inactive' %}selected{% endif %}>Khóa</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    <a href="{{ url_for('list_users') }}" class="btn btn-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

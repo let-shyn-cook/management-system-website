@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Danh sách yêu cầu nâng quyền{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'sidebar.html' %}
+    
+    <div class="main-content">
+        <div class="content-header">
+            <h2>Danh sách yêu cầu nâng quyền</h2>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Người yêu cầu</th>
+                        <th>Quyền hiện tại</th>
+                        <th>Quyền yêu cầu</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in requests %}
+                    <tr>
+                        <td>{{ request.user_name }}</td>
+                        <td>{{ request.current_role if request.current_role else 'Chưa có quyền' }}</td>
+                        <td>{{ request.requested_role }}</td>
+                        <td>{{ request.status }}</td>
+                        <td>{{ request.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            {% if request.status == 'pending' %}
+                            <form method="POST" action="{{ url_for('approve_request', request_id=request._id) }}" style="display:inline">
+                                <button type="submit" class="btn btn-success btn-sm">Duyệt</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('reject_request', request_id=request._id) }}" style="display:inline">
+                                <button type="submit" class="btn btn-danger btn-sm">Từ chối</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

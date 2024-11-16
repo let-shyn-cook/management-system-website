@@ -1,0 +1,61 @@
+.confirm-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+}
+
+.confirm-modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.confirm-content {
+    background: white;
+    border-radius: 8px;
+    width: 400px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.confirm-header {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.confirm-header h5 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.confirm-body {
+    padding: 1rem;
+}
+
+.confirm-footer {
+    padding: 1rem;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    color: #6c757d;
+}
+
+.close:hover {
+    color: #343a40;
+} 

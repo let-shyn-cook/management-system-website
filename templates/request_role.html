@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Yêu cầu quyền{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    {% include 'sidebar.html' %}
+    
+    <div class="main-content">
+        <div class="content-header">
+            <h2>Yêu cầu nâng cấp quyền</h2>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="form-container">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="role_name">Vai trò yêu cầu</label>
+                    <select id="role_name" name="role_name" required class="form-control">
+                        {% for role in available_roles %}
+                            <option value="{{ role }}">{{ role_hierarchy[role]['position'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Gửi yêu cầu</button>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 
